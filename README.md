@@ -36,3 +36,7 @@ GAN从网络的角度来看，它由**两部分**组成。
 把这两部分**加在一起**：$\displaystyle\min_G\max_D V(D,\,G)=\mathbb{E}_{\boldsymbol{x}\sim p_\mathrm{data}(\boldsymbol{x})}[\log D(\boldsymbol{x})]+\mathbb{E}_{\boldsymbol{z}\sim p_\mathrm{z}(\boldsymbol{z})}[\log (1-D(G(\boldsymbol{z})))]$
 
 实际训练中**Generator**的Loss用的是这个：$\displaystyle\max_G\mathbb{E}_{\boldsymbol{z}\sim p_\mathrm{z}(\boldsymbol{z})}[\log D(G(\boldsymbol{z}))]$，这样的损失函数leads to [non-saturating gradients](https://blog.csdn.net/yzy_1996/article/details/112648606)，训练起来更容易
+
+## Colab Notebook
+
+* [GAN](notebook/gan.ipynb)
