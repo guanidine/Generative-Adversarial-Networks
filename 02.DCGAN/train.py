@@ -1,9 +1,9 @@
 import torch
 from torch import nn, optim
-import torchvision
-from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+from torchvision import datasets, transforms
+from torchvision.utils import make_grid
 from tqdm.contrib import tenumerate
 
 from model import Discriminator, Generator, initialize_weights
@@ -11,34 +11,38 @@ from model import Discriminator, Generator, initialize_weights
 # Hyperparameters etc.
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 LEARNING_RATE = 2e-4
-BATCH_SIZE = 128
+Z_DIM = 100
 IMAGE_SIZE = 64
 CHANNELS_IMG = 1
-Z_DIM = 100
-NUM_EPOCHS = 5
 FEATURE_DISC = 64
 FEATURE_GEN = 64
+BATCH_SIZE = 128
+NUM_EPOCHS = 5
 
 transforms = transforms.Compose(
     [
+        # transforms.Resize(size)
+        # i.e, if height > width, rescaled to (size * height / width, size)
+        # transforms.Resize(h, w)
+        # rescaled to (h, w)
         transforms.Resize(IMAGE_SIZE),
         transforms.ToTensor(),
         transforms.Normalize(
-            [0.5 for _ in range(CHANNELS_IMG)],
-            [0.5 for _ in range(CHANNELS_IMG)]
+            mean=[0.5 for _ in range(CHANNELS_IMG)],
+            std=[0.5 for _ in range(CHANNELS_IMG)]
         )
     ]
 )
 
 dataset = datasets.MNIST(root="dataset/", train=True, transform=transforms, download=True)
 dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
-gen = Generator(Z_DIM, CHANNELS_IMG, FEATURE_GEN).to(device)
 disc = Discriminator(CHANNELS_IMG, FEATURE_DISC).to(device)
-initialize_weights(gen)
+gen = Generator(Z_DIM, CHANNELS_IMG, FEATURE_GEN).to(device)
 initialize_weights(disc)
+initialize_weights(gen)
 
-opt_gen = optim.Adam(gen.parameters(), lr=LEARNING_RATE, betas=(0.5, 0.999))
 opt_disc = optim.Adam(disc.parameters(), lr=LEARNING_RATE, betas=(0.5, 0.999))
+opt_gen = optim.Adam(gen.parameters(), lr=LEARNING_RATE, betas=(0.5, 0.999))
 criterion = nn.BCELoss()
 
 fixed_noise = torch.randn(32, Z_DIM, 1, 1).to(device)
@@ -84,8 +88,8 @@ for epoch in range(NUM_EPOCHS):
             with torch.no_grad():
                 fake = gen(fixed_noise)
                 # take out (up to) 32 examples
-                img_grid_real = torchvision.utils.make_grid(real[:32], normalize=True)
-                img_grid_fake = torchvision.utils.make_grid(fake[:32], normalize=True)
+                img_grid_real = make_grid(real[:32], normalize=True)
+                img_grid_fake = make_grid(fake[:32], normalize=True)
 
                 writer_real.add_image("Real", img_grid_real, global_step=step)
                 writer_fake.add_image("Fake", img_grid_fake, global_step=step)

@@ -18,7 +18,7 @@ GAN从网络的角度来看，它由**两部分**组成。
 - **生成器网络**：它一个潜在空间的随机向量作为输入，并将其解码为一张合成图像；
 - **判别器网络**：以一张图像（真实的或合成的均可）作为输入，并预测该图像来自训练集还是来自生成器网络。
 
-<img src="https://raw.githubusercontent.com/datawhalechina/dive-into-cv-pytorch/master/markdown_imgs/chapter05/GAN%E7%BD%91%E7%BB%9C%E6%A1%86%E6%9E%B6.png" style="zoom: 80%;" />
+![](https://production-media.paperswithcode.com/methods/gan.jpeg)
 
 ## 损失函数
 
@@ -40,3 +40,4 @@ GAN从网络的角度来看，它由**两部分**组成。
 ## Colab Notebook
 
 * [GAN](notebook/gan.ipynb)
+* [DCGAN](notebook/dcgan.ipynb)
