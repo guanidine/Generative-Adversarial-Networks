@@ -50,7 +50,8 @@ class Generator(nn.Module):
             self._block(features_g * 4, features_g * 2, 4, 2, 1),  # 32 x 32
             nn.ConvTranspose2d(
                 features_g * 2, channels_img, kernel_size=4, stride=2, padding=1
-            ),  # 64 x 64
+            ),
+            # Output: N x channels_img x 64 x 64
             nn.Tanh()
         )
 
