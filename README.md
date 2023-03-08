@@ -41,3 +41,6 @@ GAN从网络的角度来看，它由**两部分**组成。
 
 * [GAN](notebook/gan.ipynb)
 * [DCGAN](notebook/dcgan.ipynb)
+* [WGAN](notebook/wgan.ipynb)
+* [WGAN-GP](notebook/wgan_gp.ipynb)
+* [CGAN](notebook/cgan.ipynb)
