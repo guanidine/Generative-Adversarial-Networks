@@ -6,7 +6,9 @@ Resources and papers:
 
 [Wasserstein GAN最新进展：从weight clipping到gradient penalty，更加先进的Lipschitz限制手法](https://www.zhihu.com/question/52602529/answer/158727900)
 
-判别器loss：$L(D)=-\mathbb{E}_{x\sim\mathbb{P}_r}[D(x)]+\mathbb{E}_{x\sim\mathbb{P}_g}[D(x)]+\lambda\mathbb{E}_{x\sim \mathcal{P}_{\hat{x}}}[\|\nabla_xD(x)\|_p-1]^2$
+判别器loss：
+
+$$L(D)=-\mathbb{E}_{x\sim\mathbb{P}_r}[D(x)]+\mathbb{E}_{x\sim\mathbb{P}_g}[D(x)]+\lambda\mathbb{E}_{x\sim \mathcal{P}_{\hat{x}}}[\|\nabla_xD(x)\|_p-1]^2$$
 
 > * **Penalty coefficient** All experiments in this paper use **λ = 10,** which we found to work well across a variety of architectures and datasets ranging from toy tasks to large ImageNet CNNs.
 > * **No critic batch normalization** Most prior GAN implementations use batch normalization in both the generator and the discriminator to help stabilize training, but batch normalization changes the form of the discriminator’s problem from mapping a single input to a single output to mapping from an entire batch of inputs to a batch of outputs. Our penalized training objective is no longer valid in this setting, since we penalize the norm of the critic’s gradient with respect to each input independently, and not the entire batch. To resolve this, we simply omit batch normalization in the critic in our models, finding that they perform well without it. Our method works with normalization schemes which don’t introduce correlations between examples. In particular, we recommend **layer normalization** as a drop-in replacement for batch normalization.

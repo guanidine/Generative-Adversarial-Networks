@@ -22,12 +22,16 @@ Resources and papers:
 ## The improvement
 
 1. 判别器最后一层去掉sigmoid
-   * 原始GAN的判别器做的是二分类任务，所以最后一层是sigmoid，但是现在WGAN中的判别器$f_w$做的是近似拟合Wasserstein距离，属于回归任务，所以要把最后一层的sigmoid拿掉。
+   * 原始GAN的判别器做的是二分类任务，所以最后一层是sigmoid，但是现在WGAN中的判别器 $f_w$ 做的是近似拟合Wasserstein距离，属于回归任务，所以要把最后一层的sigmoid拿掉。
+   
 2. 生成器和判别器的loss不取log
-   * 生成器loss：$-\mathbb{E}_{x\sim\mathbb{P}_g}[f_w(x)]$
-   * 判别器loss：$\mathbb{E}_{x\sim\mathbb{P}_g}[f_w(x)]-\mathbb{E}_{x\sim\mathbb{P}_r}[f_w(x)]$
+   * 生成器loss： $-\mathbb{E}_{x\sim\mathbb{P}_g}[f_w(x)]$
+   
+   * 判别器loss： $\mathbb{E}_{x\sim\mathbb{P}_g}[f_w(x)]-\mathbb{E}_{x\sim\mathbb{P}_r}[f_w(x)]$
+   
 3. 每次更新判别器的参数之后把它们的绝对值截断到不超过一个固定常数c
-   * 我们其实不关心具体的$K$是多少，只要它不是正无穷就行，因为它只是会使得梯度变大$K$倍，并不会影响梯度的方向。所以作者采取了一个非常简单的做法，就是限制神经网络$f_\theta$的所有参数$w_i$的不超过某个范围$[−c,\,c]$，比如$w_i\in[−0.01,\,0.01]$，此时关于输入样本$x$的导数$\frac{\part f_w}{\part x}$也不会超过某个范围，所以一定存在某个不知道的常数$K$使得$f_w$的局部变动幅度不会超过它，Lipschitz连续条件得以满足。具体在算法实现中，只需要每次更新完$w$后把它clip回这个范围就可以了。
+   * 我们其实不关心具体的 $K$ 是多少，只要它不是正无穷就行，因为它只是会使得梯度变大 $K$ 倍，并不会影响梯度的方向。所以作者采取了一个非常简单的做法，就是限制神经网络 $f_\theta$ 的所有参数 $w_i$ 的不超过某个范围 $[−c,c]$ ，比如 $w_i\in[−0.01,0.01]$ ，此时关于输入样本 $x$ 的导数 $\frac{\partial f_w}{\partial x}$ 也不会超过某个范围，所以一定存在某个不知道的常数 $K$ 使得 $f_w$ 的局部变动幅度不会超过它，Lipschitz连续条件得以满足。具体在算法实现中，只需要每次更新完 $w$ 后把它clip回这个范围就可以了。
+   
 4. 不要用基于动量的优化算法（包括momentum和Adam），推荐RMSProp，SGD也行
    * 实验发现如果使用Adam，判别器的loss有时候会崩掉。当它崩掉时，Adam给出的更新方向与梯度方向夹角的cos值就变成负数，更新方向与梯度方向南辕北辙，这意味着判别器的loss梯度是不稳定的，所以不适合用Adam这类基于动量的优化算法。作者改用RMSProp之后，问题就解决了，因为RMSProp适合梯度不稳定的情况。
 
@@ -124,17 +128,17 @@ We know we want to minimize $d$, but how do we define $d$? This section compares
 
 On to the distances at play.
 
-* The Total Variation (TV) distance is $$\displaystyle\delta(P_r,\,P_g)=\sup_A|P_r(A)-P_g(A)|$$.
+* The Total Variation (TV) distance is $$\displaystyle\delta(P_r,P_g)=\sup_A|P_r(A)-P_g(A)|$$.
 
 * The Kullback-Leibler (KL) divergence is $$\displaystyle KL(P_r\|P_g)=\int_x\log\left(\dfrac{P_r(X)}{P_g(x)}\right)P_r(x)\,\mathrm{d}x$$. This isn't symmetric. The reverse KL divergence is defined as $KL(P_g\|P_r)$.
 
-* The Jenson-Shannon (JS) divergence: Let $M$ be the mixture distribution $M=P_r/2+P_g/2$. Then $$\displaystyle JS(P_r,\,P_g)=\dfrac12KL(P_r\|P_m)+\dfrac12KL(P_g\|P_m)$$.
+* The Jenson-Shannon (JS) divergence: Let $M$ be the mixture distribution $M=P_r/2+P_g/2$. Then $$\displaystyle JS(P_r,P_g)=\dfrac12KL(P_r\|P_m)+\dfrac12KL(P_g\|P_m)$$.
 
-* Finally, the Earth Mover (EM) or Wasserstein distance: Let $\Pi(P_r,\,P_g)$ be the set of all joint distribution $\gamma$ whose marginal distributions are $P_r$ and $P_g$. Then $$\displaystyle W(P_r,\,P_g)=\inf_{\gamma\in\Pi(P_r,\,P_g)}\mathbb{E}_{(x,\,y)\sim\gamma}[\|x-y\|]$$.
+* Finally, the Earth Mover (EM) or Wasserstein distance: Let $\Pi(P_r,P_g)$ be the set of all joint distribution $\gamma$ whose marginal distributions are $P_r$ and $P_g$. Then $$\displaystyle W(P_r,P_g)=\inf_{\gamma\in\Pi(P_r,P_g)}\mathbb{E}_{(x,y)\sim\gamma}[\|x-y\|]$$.
 
   * > Probability distributions are defined by how much mass they put on each point. Imagine we started with distribution $P_r$, and wanted to move mass around to change the distribution into $P_g$. **Moving mass $m$ by distance $d$ costs $m⋅d$ effort. The earth mover distance is the minimal effort we need to spend.**
     >
-    > Why does the infimum over $\Pi(P_r,\,P_g)$ give the minimal effort? You can think of each $\gamma\in\Pi$ as a transport plan. To execute the plan, for all $x,\,y$ move $\gamma(x,\,y)$ mass from $x$ to $y$.
+    > Why does the infimum over $\Pi(P_r,P_g)$ give the minimal effort? You can think of each $\gamma\in\Pi$ as a transport plan. To execute the plan, for all $x,y$ move $\gamma(x,y)$ mass from $x$ to $y$.
     >
     > Every strategy for moving weight can be represented this way. But what properties does the plan need to satisfy to transform $P_r$ into $P_g$?
     >
@@ -142,23 +146,23 @@ On to the distances at play.
     >
     > - The amount of mass that enters $y$ is $\int_x\gamma(x,y)\,\mathrm{d}x$. This must equal $P_g(y)$, the amount of mass that ends up at $y$.
     >
-    > **This shows why the marginals of $\gamma\in\Pi$ must be $P_r$ and $P_g$.** For scoring, the effort spent is $\int_x\int_y\gamma(x,\,y)\|x-y\|\,\mathrm{d}y\mathrm{d}x=\mathbb{E}_{(x,\,y)\sim\gamma}[\|x-y\|]$. **Computing the infinum of this over all valid $\gamma$ gives the earth mover distance.**
+    > **This shows why the marginals of $\gamma\in\Pi$ must be $P_r$ and $P_g$.** For scoring, the effort spent is $\int_x\int_y\gamma(x,y)\|x-y\|\,\mathrm{d}y\mathrm{d}x=\mathbb{E}_{(x,y)\sim\gamma}[\|x-y\|]$. **Computing the infinum of this over all valid $\gamma$ gives the earth mover distance.**
 
 The paper introduces a simple example to argue why we should care about the Earth-Mover distance, which shows that **there exist sequences of distributions that don’t converge under the JS, KL, reverse KL, or TV divergence, but which do converge under the EM distance.**
 
-**This example also shows that for the JS, KL, reverse KL, and TV divergence, there are cases where the gradient is always $0$.** This is especially damning from an optimization perspective - any approach that works by taking the gradient $\nabla_\theta d(P_0,\,P_\theta)$ will fail in these cases.
+**This example also shows that for the JS, KL, reverse KL, and TV divergence, there are cases where the gradient is always $0$.** This is especially damning from an optimization perspective - any approach that works by taking the gradient $\nabla_\theta d(P_0,P_\theta)$ will fail in these cases.
 
 ### Wasserstein GAN
 
 **Unfortunately, computing the Wasserstein distance exactly is intractable.** Let’s repeat the definition.
 
-$$\displaystyle W(P_r,\,P_g)=\inf_{\gamma\in\Pi(P_r,\,P_g)}\mathbb{E}_{(x,\,y)\sim\gamma}[\|x-y\|]$$
+$$\displaystyle W(P_r,`P_g)=\inf_{\gamma\in\Pi(P_r,P_g)}\mathbb{E}_{(x,y)\sim\gamma}[\|x-y\|]$$
 
 The paper now shows how we can compute an approximation of this.
 
 A result from [Kantorovich-Rubinstein duality](https://en.wikipedia.org/wiki/Wasserstein_metric#Dual_representation_of_W1) shows $W$ is equivalent to
 
-$$\displaystyle W(P_r,\,P_\theta)=\sup_{\|f\|_L\leqslant1}\mathbb{E}_{x\sim\mathbb{P}_r}[f(x)]-\mathbb{E}_{x\sim\mathbb{P}_\theta}[f(x)]$$
+$$\displaystyle W(P_r,P_\theta)=\sup_{\|f\|_L\leqslant1}\mathbb{E}_{x\sim\mathbb{P}_r}[f(x)]-\mathbb{E}_{x\sim\mathbb{P}_\theta}[f(x)]$$
 
 where the supremum is taken over all $1$-Lipschitz functions.
 
@@ -182,7 +186,7 @@ $$\begin{aligned}    \nabla_\theta W(P_r, P_\theta) &= \nabla_\theta (\mathbb{E}
 - Once we find the optimal $f_w$, compute the $\theta$ gradient $-\mathbb{E}_{z \sim Z}[\nabla_\theta f_w(g_\theta(z))]$ by sampling several $z\sim Z$.
 - Update $\theta$, and repeat the process.
 
-There’s one final detail. This entire derivation only works when the function family $\{f_w\}_{w\in\mathcal{W}}$ is $K$-Lipschitz. To guarantee this is true, we use weight clamping. **The weights $w$ are constrained to lie within $[-c,\,c]$, by clipping $w$ after every update to $w$.**
+There’s one final detail. This entire derivation only works when the function family $\{f_w\}_{w\in\mathcal{W}}$ is $K$-Lipschitz. To guarantee this is true, we use weight clamping. **The weights $w$ are constrained to lie within $[-c,c]$, by clipping $w$ after every update to $w$.**
 
 The full algorithm is below.
 

@@ -29,13 +29,27 @@ GAN从网络的角度来看，它由**两部分**组成。
 | $x^{(i)}$ | Real Sample   |
 | $z^{(i)}$ | Random Noise  |
 
-**Discriminator**: $\displaystyle\dfrac1m\sum_{i=1}^m\left[\log D(x^{(i)})+\log(1-D(G(z^{(i)})))\right]$，希望准确地判断出真的和假的，追求最大化
+**Discriminator**: 
 
-**Generator**：$\displaystyle\dfrac1m\sum_{i=1}^m\log(1-D(G(z^{(i)})))$，希望Discriminator把假的当成真的，追求最小化
+$$\displaystyle\dfrac1m\sum_{i=1}^m\left[\log D(x^{(i)})+\log(1-D(G(z^{(i)})))\right],$$
 
-把这两部分**加在一起**：$\displaystyle\min_G\max_D V(D,\,G)=\mathbb{E}_{\boldsymbol{x}\sim p_\mathrm{data}(\boldsymbol{x})}[\log D(\boldsymbol{x})]+\mathbb{E}_{\boldsymbol{z}\sim p_\mathrm{z}(\boldsymbol{z})}[\log (1-D(G(\boldsymbol{z})))]$
+希望准确地判断出真的和假的，追求最大化
 
-实际训练中**Generator**的Loss用的是这个：$\displaystyle\max_G\mathbb{E}_{\boldsymbol{z}\sim p_\mathrm{z}(\boldsymbol{z})}[\log D(G(\boldsymbol{z}))]$，这样的损失函数leads to [non-saturating gradients](https://blog.csdn.net/yzy_1996/article/details/112648606)，训练起来更容易
+**Generator**：
+
+$$\displaystyle\dfrac1m\sum_{i=1}^m\log(1-D(G(z^{(i)}))),$$
+
+希望Discriminator把假的当成真的，追求最小化
+
+把这两部分**加在一起**：
+
+$$\displaystyle\min_G\max_D V(D,G)=\mathbb{E}_{\boldsymbol{x}\sim p_\mathrm{data}(\boldsymbol{x})}[\log D(\boldsymbol{x})]+\mathbb{E}_{\boldsymbol{z}\sim p_\mathrm{z}(\boldsymbol{z})}[\log (1-D(G(\boldsymbol{z})))]$$
+
+实际训练中**Generator**的Loss用的是这个：
+
+$$\displaystyle\max_G\mathbb{E}_{\boldsymbol{z}\sim p_\mathrm{z}(\boldsymbol{z})}[\log D(G(\boldsymbol{z}))],$$
+
+这样的损失函数leads to [non-saturating gradients](https://blog.csdn.net/yzy_1996/article/details/112648606)，训练起来更容易
 
 ## Colab Notebook
 
@@ -44,3 +58,4 @@ GAN从网络的角度来看，它由**两部分**组成。
 * [WGAN](notebook/wgan.ipynb)
 * [WGAN-GP](notebook/wgan_gp.ipynb)
 * [CGAN](notebook/cgan.ipynb)
+* [Pix2Pix](notebook/pix2pix.ipynb)

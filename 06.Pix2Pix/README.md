@@ -10,21 +10,21 @@ Pix2pix是用CGAN做图像转换image translation的鼻祖，图像转换是从�
 
 Pix2pix的网络框架如下，原理和CGAN类似
 
-![img](https://ask.qcloudimg.com/http-save/yehe-7336036/o8fa23319x.png?imageView2/2/w/2560/h/7000)
+<img src="https://camo.githubusercontent.com/b772c492e8c058a2b5f65eb5ebc97b5b188913c425e8f16ca2f1e138f8bd02aa/68747470733a2f2f64726976652e676f6f676c652e636f6d2f75633f6578706f72743d766965772669643d313031316b755f34587856484b4458345836574e4748336f4b36456274677a4a67" width="800px">
 
 生成器采用Unet结构，输入目标轮廓，经过编码解码生成着色的目标图像，判别器采用PatchGan对生成假图像和真实图像进行判别，把图像分成切片patch，分别判断每个patch的真假，再平均最后的结果，作者采用的patch大小为70x70。
 
-![图片](https://mmbiz.qpic.cn/mmbiz_png/mAfNFy9uC8rs9ShgldCHUVOv60UHomQOibzUulqcJqgicr0D87DG0iad03qsDgGbJHRzXJ254BgCOUwFeVId1zZJw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1)
+<img src="https://camo.githubusercontent.com/d55a437337d0e08c6a082714959253d80b81ce4e6c18e94688d9aff16e3bf2f8/68747470733a2f2f6c6d622e696e666f726d6174696b2e756e692d66726569627572672e64652f70656f706c652f726f6e6e656265722f752d6e65742f752d6e65742d6172636869746563747572652e706e67" width="800px">
 
 通常情况下的CGAN目标函数为
 
-$$\mathcal{L}_{cGAN}(G,\,D)=\mathbb{E}_{x,\,y}[\log D(x,\,y)]+\mathbb{E}_{x,\,z}[\log(1-D(x,\,G(x,\,z)))]$$
+$$\mathcal{L}_{cGAN}(G,D)=\mathbb{E}_{x,y}[\log D(x,y)]+\mathbb{E}_{x,z}[\log(1-D(x,G(x,z)))]$$
 
 Pix2pix中增加了一个L1 Loss一起优化目标函数
 
-$$\mathcal{L}_{L1}(G)=\mathbb{E}_{x,\,y,\,z}[\|y-G(x,\,z)\|_1]$$
+$$\mathcal{L}_{L1}(G)=\mathbb{E}_{x,y,z}[\|y-G(x,z)\|_1]$$
 
-$$\displaystyle G^*=\arg\min_G\max_D\mathcal{L}_{cGAN}(G,\,D)+\lambda\mathcal{L}_{L1}(G)$$
+$$\displaystyle G^*=\arg\min_G\max_D\mathcal{L}_{cGAN}(G,D)+\lambda\mathcal{L}_{L1}(G)$$
 
 使用传统的L1 loss来让生成的图片跟训练的图片尽量相似，用GAN来构建高频部分的细节。
 
@@ -50,7 +50,7 @@ class CNNBlock(nn.Module):
 
 ```python
 class Discriminator(nn.Module):
-    def __init__(self, in_channels=3, features=None):  # 256 -> 30 x 30
+    def __init__(self, in_channels=3, features=None):
         super().__init__()
         if features is None:
             features = [64, 128, 256, 512]
@@ -178,17 +178,17 @@ It would be highly desirable if we could **instead specify only a high-level goa
 
 The objective of a conditional GAN can be expressed as
 
-$$\mathcal{L}_{cGAN}(G,\,D)=\mathbb{E}_{x,\,y}[\log D(x,\,y)]+\mathbb{E}_{x,\,z}[\log(1-D(x,\,G(x,\,z)))],$$
+$$\mathcal{L}_{cGAN}(G,D)=\mathbb{E}_{x,y}[\log D(x,y)]+\mathbb{E}_{x,z}[\log(1-D(x,G(x,z)))],$$
 
-where G tries to minimize this objective against an adversarial D that tries to maximize it, i.e. $G^*=\arg\min_G\max_D\mathcal{L}_{cGAN}(G,\,D)$.
+where G tries to minimize this objective against an adversarial D that tries to maximize it, i.e. $G^*=\arg\min_G\max_D\mathcal{L}_{cGAN}(G,D)$.
 
 Previous approaches have found it beneficial to mix the GAN objective with a more traditional loss, such as L2 distance. The discriminator’s job remains unchanged, but the generator is tasked to not only fool the discriminator but also to be near the ground truth output in an L2 sense. We also explore this option, **using L1 distance rather than L2 as L1 encourages less blurring**:
 
-$$\mathcal{L}_{L1}(G)=\mathbb{E}_{x,\,y,\,z}[\|y-G(x,\,z)\|_1].$$
+$$\mathcal{L}_{L1}(G)=\mathbb{E}_{x,y,z}[\|y-G(x,z)\|_1].$$
 
 Our final objective is
 
-$$\displaystyle G^*=\arg\min_G\max_D\mathcal{L}_{cGAN}(G,\,D)+\lambda\mathcal{L}_{L1}(G).$$
+$$\displaystyle G^*=\arg\min_G\max_D\mathcal{L}_{cGAN}(G,D)+\lambda\mathcal{L}_{L1}(G).$$
 
 #### Network architectures
 
@@ -227,7 +227,7 @@ After the last layer, a convolution is applied to map to a 1-dimensional output,
 
 ##### Optimization
 
-**We alternate between one gradient descent step on $D$, then one step on $G$.** As suggested in the original GAN paper, rather than training G to minimize $\log(1 − D(x,\, G(x,\, z))$, we **instead train to maximize $\log D(x,\, G(x,\, z))$**. In addition, we **divide the objective by $2$ while optimizing $D$**, which slows down the rate at which $D$ learns relative to $G$. We use minibatch SGD and apply the **Adam** solver, **with a learning rate of $0.0002$, and momentum parameters $\beta_1 = 0.5,\, \beta_2 = 0.999$**.
+**We alternate between one gradient descent step on $D$, then one step on $G$.** As suggested in the original GAN paper, rather than training G to minimize $\log(1 − D(x, G(x, z))$, we **instead train to maximize $\log D(x, G(x, z))$**. In addition, we **divide the objective by $2$ while optimizing $D$**, which slows down the rate at which $D$ learns relative to $G$. We use minibatch SGD and apply the **Adam** solver, **with a learning rate of $0.0002$, and momentum parameters $\beta_1 = 0.5, \beta_2 = 0.999$**.
 
 Random jitter was applied by resizing the $256×256$ input images to $286 × 286$ and then randomly cropping back to size $256 × 256$.
 All networks were trained from scratch. Weights were initialized from a Gaussian distribution with mean $0$ and standard deviation $0.02$.
