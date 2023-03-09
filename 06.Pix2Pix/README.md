@@ -2,7 +2,7 @@
 
 Resources and papers
 
-[Image-to-Image Translation With Conditional Adversarial Networks](https://arxiv.org/pdf/1611.07004v3.pdf)
+[Image-to-Image Translation With Conditional Adversarial Networks](https://arxiv.org/abs/1611.07004v3)
 
 [深度学习系列（四）分割网络模型（FCN、Unet、Unet++、SegNet、RefineNet)](https://mp.weixin.qq.com/s?__biz=MzUxNTY1MjMxNQ==&mid=2247484343&idx=1&sn=2cd6eccf9657bdfd60f50d044012370a&chksm=f9b22c03cec5a515bf56a731fb1392f829fa7929e67c6d54d6e78d39c3db4faf48300a971bb5&scene=178&cur_album_id=1338176739859857409#rd)
 

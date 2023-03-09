@@ -2,7 +2,7 @@
 
 Resources and papers:
 
-[Conditional Generative Adversarial Nets](https://arxiv.org/pdf/1411.1784.pdf)
+[Conditional Generative Adversarial Nets](https://arxiv.org/abs/1411.1784)
 
 $$\displaystyle\min_G \max_D V(D, G) = \mathbb{E}_{\boldsymbol{x} \sim p_{\text{data}}(\boldsymbol{x})}[\log D(\boldsymbol{x|y})] + \mathbb{E}_{\boldsymbol{z} \sim p_{\boldsymbol{z}}(\boldsymbol{z})}[\log (1 - D(G(\boldsymbol{z|y})))]$$
 
