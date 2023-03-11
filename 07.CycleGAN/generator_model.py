@@ -31,11 +31,30 @@ class ResidualBlock(nn.Module):
 class Generator(nn.Module):
     def __init__(self, img_channels, num_features=64, num_residuals=9):
         super().__init__()
-        self.initial = nn.Conv2d(img_channels, num_features, kernel_size=7, stride=1, padding=3, padding_mode="reflect")
+        self.initial = nn.Conv2d(
+            img_channels,
+            num_features,
+            kernel_size=7,
+            stride=1,
+            padding=3,
+            padding_mode="reflect"
+        )
         self.down_blocks = nn.ModuleList(
             [
-                ConvBlock(num_features, num_features * 2, kernel_size=3, stride=2, padding=1),
-                ConvBlock(num_features * 2, num_features * 4, kernel_size=3, stride=2, padding=1)
+                ConvBlock(
+                    num_features,
+                    num_features * 2,
+                    kernel_size=3,
+                    stride=2,
+                    padding=1
+                ),
+                ConvBlock(
+                    num_features * 2,
+                    num_features * 4,
+                    kernel_size=3,
+                    stride=2,
+                    padding=1
+                )
             ]
         )
         self.res_blocks = nn.Sequential(
@@ -43,13 +62,34 @@ class Generator(nn.Module):
         )
         self.up_blocks = nn.ModuleList(
             [
-                ConvBlock(num_features * 4, num_features * 2, down=False, kernel_size=3, stride=2, padding=1,
-                          output_padding=1),
-                ConvBlock(num_features * 2, num_features, down=False, kernel_size=3, stride=2, padding=1,
-                          output_padding=1)
+                ConvBlock(
+                    num_features * 4,
+                    num_features * 2,
+                    down=False,
+                    kernel_size=3,
+                    stride=2,
+                    padding=1,
+                    output_padding=1
+                ),
+                ConvBlock(
+                    num_features * 2,
+                    num_features,
+                    down=False,
+                    kernel_size=3,
+                    stride=2,
+                    padding=1,
+                    output_padding=1
+                )
             ]
         )
-        self.last = nn.Conv2d(num_features, img_channels, kernel_size=7, stride=1, padding=3, padding_mode="reflect")
+        self.last = nn.Conv2d(
+            num_features,
+            img_channels,
+            kernel_size=7,
+            stride=1,
+            padding=3,
+            padding_mode="reflect"
+        )
 
     def forward(self, x):
         x = self.initial(x)

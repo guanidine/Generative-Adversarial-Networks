@@ -1,6 +1,6 @@
 # 【论文精读 - pix2pix】Image-to-Image Translation With Conditional Adversarial Networks
 
-pix2pix：Image-to-Image Translation With Conditional Adversarial Networks——基于条件式生成网络（cGANs）的图像转译，论文发表于2017年的CVPR。
+pix2pix：Image-to-Image Translation With Conditional Adversarial Networks——基于条件式生成网络（cGANs）的图像迁移，论文发表于2017年的CVPR。
 
 在pix2pix的cGANs中，生成器不光要输入一个噪声，还要输入一个图像。判别器需要判断这一对图像整体是否是真的，因此可以使得生成的图像**既像真的**，也要**和输入的标签**（图像、线稿等）**相吻合**。生成器使用UNet，这种网络结构既可以得到图像的底层信息（如边缘、转角、轮廓、斑块等），又可以得到高层的语义特征（如眼睛、车轮等）。判别器的目标是结合标签进行判别，如下图所示，判别器对于真地图+真照片应当输出“真”，而对于假地图+真照片应当输出“假”。生成器和判别器不断对抗训练、共同进化，最终达到纳什均衡。
 
@@ -12,9 +12,9 @@ pix2pix：Image-to-Image Translation With Conditional Adversarial Networks——
 
 [Image-to-Image Translation With Conditional Adversarial Networks](https://arxiv.org/abs/1611.07004v3)
 
-[深度学习系列（四）分割网络模型（FCN、Unet、Unet++、SegNet、RefineNet)](https://mp.weixin.qq.com/s?__biz=MzUxNTY1MjMxNQ==&mid=2247484343&idx=1&sn=2cd6eccf9657bdfd60f50d044012370a&chksm=f9b22c03cec5a515bf56a731fb1392f829fa7929e67c6d54d6e78d39c3db4faf48300a971bb5&scene=178&cur_album_id=1338176739859857409#rd)
-
 [【精读AI论文】pix2pix-简笔画猫转真猫](https://www.bilibili.com/video/BV1wY4y1k7Tc/)
+
+[Pix2Pix Paper Walkthrough](https://www.youtube.com/watch?v=9SGs4Nm0VR4&list=PLhhyoLH6IjfwIp8bZnzX8QR30TRcHO8Va&index=6&ab_channel=AladdinPersson)
 
 [Pix2Pix implementation from scratch](https://www.youtube.com/watch?v=SuddDSqGRzg&feature=youtu.be&ab_channel=AladdinPersson)
 
@@ -32,7 +32,7 @@ pix2pix：Image-to-Image Translation With Conditional Adversarial Networks——
 
 > Many problems in image processing, computer graphics, and computer vision can be posed as “translating” an input image into a corresponding output image. Traditionally, each of these tasks has been tackled with separate, special-purpose machinery, despite the fact that **the setting is always the same: predict pixels from pixels**. Our goal in this paper is to develop **a common framework for all these problems**.
 
-许多图像处理（image processing）、计算机图形学（computer graphics）和计算机视觉（computer vision）问题都可以被归结为转译（translating）问题，即输入一张图，转成对应的输出——image-to-image translation。以前这些image translation虽然都是从输入图像到生成图像的映射，但它们被当做不同的问题，人们为这些问题分别设计了不同的损失函数和算法。论文认为这些问题都可以归结为像素到像素的转化，pix2pix提出了一种通用的框架。
+许多图像处理（image processing）、计算机图形学（computer graphics）和计算机视觉（computer vision）问题都可以被归结为迁移（translating）问题，即输入一张图，转成对应的输出——image-to-image translation。以前这些image translation虽然都是从输入图像到生成图像的映射，但它们被当做不同的问题，人们为这些问题分别设计了不同的损失函数和算法。论文认为这些问题都可以归结为像素到像素的转化，pix2pix提出了一种通用的框架。
 
 > If we take a naive approach and ask the CNN to minimize the Euclidean distance between predicted and ground truth pixels, **it will tend to produce blurry results**. This is because Euclidean distance is minimized by averaging all plausible outputs, which causes blurring. Coming up with loss functions that force the CNN to do what we really want – e.g., output sharp, realistic images – is an open problem and generally requires expert knowledge.
 
@@ -50,7 +50,7 @@ pix2pix：Image-to-Image Translation With Conditional Adversarial Networks——
 
 > Our primary contribution is to demonstrate that **on a wide variety of problems, conditional GANs produce reasonable results**. Our second contribution is to present a simple framework sufficient to achieve good results, and to analyze the effects of several important architectural choices.
 
-在论文发表之前，GANs已经被广泛应用，但都是用在特定任务中。论文的主要贡献是证明了在解决很大范围的一系列任务中，cGANs都可以产生不错的结果。论文的第二个贡献是提出了一个简洁的代码框架，并分析了几个重要网络结构的效果（论文给出的代码时利用Lua语言的Torch实现的）。
+在论文发表之前，GANs已经被广泛应用，但都是用在特定任务中。论文的主要贡献是证明了在解决很大范围的一系列任务中，cGANs都可以产生不错的结果。论文的第二个贡献是提出了一个简洁的代码框架，并分析了几个重要网络结构的效果（论文给出的代码是利用Lua语言的Torch实现的）。
 
 ### Related Work
 
@@ -84,7 +84,11 @@ $D(x,y)$ 是判别器认为是真图的概率，$D(x,G(x,z))$ 是判别器认为
 
 $$\mathcal{L}_{L1}(G)=\mathbb{E}_{x,y,z}[\|y-G(x,z)\|_1].$$
 
-还要加一个L2距离，鼓励生成图像与输入图像在像素上接近——不管是L几，效果都是这样的鼓励效果。论文使用L1，因为它生成的图片更不模糊一点。
+还要加一个L1距离，鼓励生成图像与输入图像在像素上接近——不管是L1还是L2，都是这样的鼓励效果。论文使用L1，因为它生成的图片更不模糊一点。
+
+最终的目标函数是：
+
+$$\displaystyle G^*=\arg\min_G\max_D\mathcal{L}_{cGAN}(G,D)+\lambda\mathcal{L}_{L1}(G).$$
 
 > Without $z$, the net could still learn a mapping from $x$ to $y$, but would produce deterministic outputs, and therefore **fail to match any distribution other than a delta function**. Past conditional GANs have acknowledged this and provided Gaussian noise $z$ as an input to the generator, in addition to $x$. In initial experiments, we did not find this strategy effective – **the generator simply learned to ignore the noise**. Instead, for our final models, we **provide noise only in the form of dropout**, applied **on several layers of our generator** at **both training and test time**.
 
@@ -102,7 +106,7 @@ $$\mathcal{L}_{L1}(G)=\mathbb{E}_{x,y,z}[\|y-G(x,z)\|_1].$$
 
 > A defining feature of image-to-image translation problems is that they **map a high resolution input grid to a high resolution output grid**. In addition, for the problems we consider, the input and output **differ in surface appearance**, but both are **renderings of the same underlying structure**. Therefore, **structure in the input is roughly aligned** with structure in the output.
 
-图像转译问题都是从一个高分辨率输入到一个高分辨率输出的映射，它们表面样式不同，但底层纹理轮廓大致是对齐的。
+图像迁移问题都是从一个高分辨率输入到一个高分辨率输出的映射，它们表面样式不同，但底层纹理轮廓大致是对齐的。
 
 > Many previous solutions to problems in this area have used an encoder-decoder network. In such a network, the input is passed through a series of layers that progressively downsample, until a bottleneck layer, at which point the process is reversed. **Such a network requires that all information flow pass through all the layers, including the bottleneck.** For many image translation problems, there is a great deal of low-level information shared between the input and output, and **it would be desirable to shuttle this information directly across the net**.
 >
@@ -120,7 +124,7 @@ $$\mathcal{L}_{L1}(G)=\mathbb{E}_{x,y,z}[\|y-G(x,z)\|_1].$$
 >
 > **This is advantageous because a smaller PatchGAN has fewer parameters, runs faster, and can be applied to arbitrarily large images.**
 
-如何捕捉高频呢，我们设计了局部小图块（local image patches）的结构，对 $N\times N$ 个图块，每一个图块分别做一次二分类（classify），判断它是真的还是假的。这样做的好处是可以对图片做全卷积，对所有的结果取平均得到最终判别器的输出。论文还证明了小图块的尺度可以相对于整张图而言非常的小（比如分成 $70\times70$），效果依旧很不错。图块小的好处在于，网络可以运行地更快，并且可以应用于任意大小的图像输入。
+如何捕捉高频呢？论文中设计了局部小图块（local image patches）的结构，对 $N\times N$ 个图块，每一个图块分别做一次二分类（classify），判断它是真的还是假的。这样做的好处是可以对图片做全卷积，对所有的结果取平均得到最终判别器的输出。论文还证明了小图块的尺度相对于整张图而言可以非常的小（比如分成 $70\times70$，效果依旧很不错）。图块小的好处在于，网络可以运行地更快，并且可以应用于任意大小的图像输入。
 
 > Such a discriminator effectively models the image as **a Markov random field**, assuming **independence** between pixels separated by more than a patch diameter. Therefore, our PatchGAN can be understood as a form of texture/style loss.
 
@@ -131,7 +135,7 @@ $$\mathcal{L}_{L1}(G)=\mathbb{E}_{x,y,z}[\|y-G(x,z)\|_1].$$
 > **We alternate between one gradient descent step on $D$, then one step on $G$.** As suggested in the original GAN paper, rather than training G to minimize $\log(1 − D(x, G(x, z))$, we **instead train to maximize $\log D(x, G(x, z))$**. In addition, we **divide the objective by $2$ while optimizing $D$**, which slows down the rate at which $D$ learns relative to $G$. We use minibatch SGD and apply the **Adam** solver, **with a learning rate of $0.0002$, and momentum parameters $\beta_1 = 0.5, \beta_2 = 0.999$**.
 
 * 经典 $\min\log(1 − D(x, G(x, z))\Leftrightarrow\max\log D(x, G(x, z))$
-* 经典的判别器的loss除 $2$，以减慢它的训练速度
+* 经典的判别器loss除以 $2$，以减慢它的训练速度
 * Adam参数：学习率 $2\times10^{-4}$，动量参数 $\beta_1 = 0.5, \beta_2 = 0.999$
 
 > We **apply dropout at test time**, and we **apply batch normalization using the statistics of the test batch**, rather than aggregated statistics of the training batch. This approach to batch normalization, when the batch size is set to $1$, has been termed “instance normalization”.
@@ -190,7 +194,7 @@ L1是图中蓝线部分，可以看到在像素比较密集的地方，L1的效�
 
 > The results in this paper suggest that conditional adversarial networks are a promising approach for many imageto-image translation tasks, especially those involving highly structured graphical outputs. These networks learn a loss adapted to the task and data at hand, which makes them applicable in a wide variety of settings.
 
-结果表明，条件GAN在很多图像转译任务中都是一个非常有前景的方法，尤其是对于那些输出高度结构化的问题。这些网络自适应地学习任务的损失函数，这使得它们在很多场合中都有应用。
+结果表明，条件GAN在很多图像迁移任务中都是一个非常有前景的方法，尤其是对于那些输出高度结构化的问题。这些网络自适应地学习任务的损失函数，这使得它们在很多场合中都有应用。
 
 ## Implementation
 
@@ -286,7 +290,7 @@ class Generator(nn.Module):
 ### Discriminator
 
 ```python
-class CNNBlock(nn.Module):
+class Block(nn.Module):
     def __init__(self, in_channels, out_channels, stride=2):
         super().__init__()
         self.conv = nn.Sequential(
@@ -320,7 +324,7 @@ class Discriminator(nn.Module):
         layers = []
         in_channels = features[0]
         for feature in features[1:]:
-            layers.append(CNNBlock(in_channels, feature, stride=1 if feature == features[-1] else 2))
+            layers.append(Block(in_channels, feature, stride=1 if feature == features[-1] else 2))
             in_channels = feature
         self.model = nn.Sequential(*layers)
 
@@ -357,7 +361,7 @@ def train_fn(disc, gen, loader, opt_disc, opt_gen, l1, bce, g_scaler, d_scaler):
             d_fake_loss = bce(d_fake, torch.zeros_like(d_fake))
             d_loss = (d_real_loss + d_fake_loss) / 2
 
-        disc.zero_grad()
+        opt_disc.zero_grad()
         d_scaler.scale(d_loss).backward()
         d_scaler.step(opt_disc)
         d_scaler.update()

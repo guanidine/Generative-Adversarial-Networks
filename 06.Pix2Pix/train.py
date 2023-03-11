@@ -27,7 +27,7 @@ def train_fn(disc, gen, loader, opt_disc, opt_gen, l1, bce, g_scaler, d_scaler):
             d_fake_loss = bce(d_fake, torch.zeros_like(d_fake))
             d_loss = (d_real_loss + d_fake_loss) / 2
 
-        disc.zero_grad()
+        opt_disc.zero_grad()
         d_scaler.scale(d_loss).backward()
         d_scaler.step(opt_disc)
         d_scaler.update()
