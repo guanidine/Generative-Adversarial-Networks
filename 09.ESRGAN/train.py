@@ -6,7 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 import config
-from dataset import MyImageFolder
+from dataset import SRDataset
 from loss import VGGLoss
 from model import Generator, Discriminator, initialize_weights
 from utils import gradient_penalty, plot_examples, load_checkpoint, save_checkpoint
@@ -78,7 +78,7 @@ def train_fn(
 
 
 def main():
-    dataset = MyImageFolder(root_dir="data/")
+    dataset = SRDataset(root_dir="data/")
     loader = DataLoader(
         dataset,
         batch_size=config.BATCH_SIZE,
@@ -102,33 +102,11 @@ def main():
     d_scaler = torch.cuda.amp.GradScaler()
 
     if config.LOAD_MODEL:
-        load_checkpoint(
-            config.CHECKPOINT_GEN,
-            gen,
-            opt_gen,
-            config.LEARNING_RATE
-        )
-        load_checkpoint(
-            config.CHECKPOINT_DISC,
-            disc,
-            opt_disc,
-            config.LEARNING_RATE
-        )
+        load_checkpoint(config.CHECKPOINT_GEN, gen, opt_gen, config.LEARNING_RATE)
+        load_checkpoint(config.CHECKPOINT_DISC, disc, opt_disc, config.LEARNING_RATE)
 
     for epoch in range(config.NUM_EPOCHS):
-        tb_step = train_fn(
-            loader,
-            disc,
-            gen,
-            opt_gen,
-            opt_disc,
-            l1,
-            vgg_loss,
-            g_scaler,
-            d_scaler,
-            writer,
-            tb_step
-        )
+        tb_step = train_fn(loader, disc, gen, opt_gen, opt_disc, l1, vgg_loss, g_scaler, d_scaler, writer, tb_step)
 
         if config.SAVE_MODEL:
             save_checkpoint(gen, opt_gen, filename=config.CHECKPOINT_GEN)
@@ -136,19 +114,14 @@ def main():
 
 
 if __name__ == '__main__':
-    try_model = True
+    try_model = False
 
     if try_model:
         # Will just use pretrained weights and run on images
         # in test_images/ and save the ones to SR in saved/
         gen = Generator(in_channels=3).to(config.DEVICE)
         opt_gen = optim.Adam(gen.parameters(), lr=config.LEARNING_RATE, betas=(0.0, 0.9))
-        load_checkpoint(
-            config.CHECKPOINT_GEN,
-            gen,
-            opt_gen,
-            config.LEARNING_RATE
-        )
+        load_checkpoint(config.CHECKPOINT_GEN, gen, opt_gen, config.LEARNING_RATE)
         plot_examples("test_images/", gen)
     else:
         # This will train from scratch

@@ -1,8 +1,10 @@
 import os
 
-import config
-import cv2
+import numpy as np
+from PIL import Image
 from torch.utils.data import Dataset, DataLoader
+
+import config
 
 
 class MyImageFolder(Dataset):
@@ -23,23 +25,21 @@ class MyImageFolder(Dataset):
         img_file, label = self.data[index]
         root_and_dir = os.path.join(self.root_dir, self.class_names[label])
 
-        image = cv2.imread(os.path.join(root_and_dir, img_file))
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        both_transform = config.both_transforms(image=image)["image"]
-        low_res = config.lowres_transform(image=both_transform)["image"]
-        high_res = config.highres_transform(image=both_transform)["image"]
+        image = np.array(Image.open(os.path.join(root_and_dir, img_file)))
+        image = config.both_transforms(image=image)["image"]
+        high_res = config.highres_transform(image=image)["image"]
+        low_res = config.lowres_transform(image=image)["image"]
         return low_res, high_res
 
 
 def test():
-    dataset = MyImageFolder(root_dir="data/")
-    loader = DataLoader(dataset, batch_size=8)
+    dataset = MyImageFolder(root_dir="new_data/")
+    loader = DataLoader(dataset, batch_size=1, num_workers=8)
 
-    print('')
     for low_res, high_res in loader:
         print(low_res.shape)
         print(high_res.shape)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test()
